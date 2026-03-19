@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { Linkedin, Award, Briefcase, BookOpen } from 'lucide-react';
+import somilImage from '../assets/Somil.jpg';
 
 export default function Instructor() {
   return (
@@ -22,7 +23,7 @@ export default function Instructor() {
                 {/* Placeholder for Instructor Image */}
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-800 to-gray-700"></div>
                 <img 
-                  src={`${import.meta.env.BASE_URL}Somil.jpg`} 
+                  src={somilImage} 
                   alt="Somil Deshmukh" 
                   className="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-luminosity hover:mix-blend-normal transition-all duration-500"
                 />
