@@ -19,6 +19,13 @@ export default function LeadForm() {
     };
 
     try {
+      // Check if running on GitHub Pages (static hosting)
+      if (window.location.hostname.includes('github.io')) {
+        alert('Form submission is disabled on GitHub Pages because it requires a backend server to save the CSV file. Please deploy to a platform like Render, Heroku, or Vercel to enable this feature.');
+        setIsSubmitting(false);
+        return;
+      }
+
       const response = await fetch('/api/leads', {
         method: 'POST',
         headers: {
