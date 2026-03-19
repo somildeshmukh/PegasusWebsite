@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import pegasusLogo from '../assets/Pegasus.jpg';
+import pegasusLogo from '../assets/pegasus-logo.jpg';
 
 export default function Header() {
   return (

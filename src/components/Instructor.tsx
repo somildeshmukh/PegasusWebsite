@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { Linkedin, Award, Briefcase, BookOpen } from 'lucide-react';
-import somilImage from '../assets/Somil.jpg';
+import somilImage from '../assets/somil-profile.jpg';
 
 export default function Instructor() {
   return (

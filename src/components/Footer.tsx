@@ -1,5 +1,5 @@
 import { Mail, MapPin, Phone } from 'lucide-react';
-import pegasusLogo from '../assets/Pegasus.jpg';
+import pegasusLogo from '../assets/pegasus-logo.jpg';
 
 export default function Footer() {
   return (
