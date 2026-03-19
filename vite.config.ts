@@ -7,6 +7,9 @@ export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
   return {
     base: './',
+    build: {
+      assetsInlineLimit: 1000000000, // Inline all assets to avoid path issues on GitHub Pages
+    },
     plugins: [react(), tailwindcss()],
     define: {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
