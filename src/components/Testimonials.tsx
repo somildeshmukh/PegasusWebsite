@@ -60,6 +60,7 @@ export default function Testimonials() {
                   src={testimonial.image} 
                   alt={testimonial.name} 
                   className="w-14 h-14 rounded-full border-2 border-indigo-500/30"
+                  referrerPolicy="no-referrer"
                 />
                 <div>
                   <h4 className="text-white font-bold text-lg">{testimonial.name}</h4>

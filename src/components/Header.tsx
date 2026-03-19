@@ -1,5 +1,4 @@
 import { motion } from 'motion/react';
-import pegasusLogo from '../assets/pegasus-logo.jpg';
 
 export default function Header() {
   return (
@@ -7,7 +6,7 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center gap-3">
-            <img src={pegasusLogo} alt="Pegasus Technologies and Software Solutions" className="h-10 w-auto rounded-md" />
+            <img src={`${import.meta.env.BASE_URL}pegasus-logo.jpg`} alt="Pegasus Technologies and Software Solutions" className="h-10 w-auto rounded-md" referrerPolicy="no-referrer" />
             <div className="hidden sm:flex flex-col">
               <span className="text-2xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400">
                 PEGASUS
