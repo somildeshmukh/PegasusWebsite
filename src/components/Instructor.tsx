@@ -29,7 +29,7 @@ export default function Instructor() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-transparent to-transparent"></div>
                 <div className="absolute bottom-4 left-4 right-4">
-                  <a href="#" className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#0A66C2] text-white hover:bg-[#004182] transition-colors">
+                  <a href="https://www.linkedin.com/in/somil-deshmukh-33236b46/" className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#0A66C2] text-white hover:bg-[#004182] transition-colors">
                     <Linkedin className="w-5 h-5" />
                   </a>
                 </div>
