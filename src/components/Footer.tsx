@@ -7,7 +7,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-6">
-              <img src="https://lh3.googleusercontent.com/d/18T0qF3qhEwP4864iR5cMZCGgLEQF8fu3" alt="Pegasus Technologies and Software Solutions" className="h-12 w-auto rounded-md" referrerPolicy="no-referrer" />
+              <img 
+              src="https://lh3.googleusercontent.com/d/18T0qF3qhEwP4864iR5cMZCGgLEQF8fu3" 
+              alt="Pegasus Logo" 
+              className="w-full h-full object-contain"
+              referrerPolicy="no-referrer"
+            />
               <span className="text-2xl font-bold text-white">Pegasus Technologies and Software Solutions</span>
             </div>
             <p className="text-gray-400 max-w-md">
