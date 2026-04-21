@@ -9,9 +9,7 @@ export default function Header() {
             <img 
               src="https://lh3.googleusercontent.com/d/18T0qF3qhEwP4864iR5cMZCGgLEQF8fu3" 
               alt="Pegasus Logo" 
-              className="w-full h-full object-contain"
-              referrerPolicy="no-referrer"
-            />
+              className="h-10 w-auto rounded-md" referrerPolicy="no-referrer" />
             <div className="hidden sm:flex flex-col">
               <span className="text-2xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400">
                 PEGASUS
