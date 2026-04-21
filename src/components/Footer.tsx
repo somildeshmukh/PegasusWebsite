@@ -10,10 +10,8 @@ export default function Footer() {
               <img 
               src="https://lh3.googleusercontent.com/d/18T0qF3qhEwP4864iR5cMZCGgLEQF8fu3" 
               alt="Pegasus Logo" 
-              className="w-full h-full object-contain"
-              referrerPolicy="no-referrer"
-            />
-              <span className="text-2xl font-bold text-white">Pegasus Technologies and Software Solutions</span>
+              className="h-10 w-auto rounded-md" referrerPolicy="no-referrer" />
+             <span className="text-2xl font-bold text-white">Pegasus Technologies and Software Solutions</span>
             </div>
             <p className="text-gray-400 max-w-md">
               Empowering students and professionals with industry-leading training in Data Science, Analytics, and AI.
