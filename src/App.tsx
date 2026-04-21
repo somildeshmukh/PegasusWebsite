@@ -12,13 +12,12 @@ import Projects from './components/Projects';
 import Roadmap from './components/Roadmap';
 import Instructor from './components/Instructor';
 import Testimonials from './components/Testimonials';
-import Pricing from './components/Pricing';
 import LeadForm from './components/LeadForm';
 import FAQ from './components/FAQ';
 import FinalCTA from './components/FinalCTA';
 import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
-import ExitIntentPopup from './components/ExitIntentPopup';
+import DemoEnrollmentPopup from './components/DemoEnrollmentPopup';
 
 export default function App() {
   return (
@@ -32,14 +31,13 @@ export default function App() {
       <Roadmap />
       <Instructor />
       <Testimonials />
-      <Pricing />
       <LeadForm />
       <FAQ />
       <FinalCTA />
       <Footer />
       
       <WhatsAppButton />
-      <ExitIntentPopup />
+      <DemoEnrollmentPopup />
     </div>
   );
 }

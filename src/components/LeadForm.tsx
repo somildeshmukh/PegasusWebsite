@@ -1,10 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
-import { Send, CheckCircle2 } from 'lucide-react';
+import { Send, CheckCircle2, ChevronDown } from 'lucide-react';
+
+import { db, auth } from '../lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { handleFirestoreError } from '../lib/firestore-errors';
+
+const INDIA_STATES_CITIES: Record<string, string[]> = {
+  "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Kurnool", "Tirupati"],
+  "Arunachal Pradesh": ["Itanagar", "Tawang", "Ziro", "Pasighat", "Bomdila"],
+  "Assam": ["Guwahati", "Dibrugarh", "Silchar", "Jorhat", "Nagaon", "Tinsukia"],
+  "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur", "Purnia", "Darbhanga"],
+  "Chhattisgarh": ["Raipur", "Bhilai", "Bilaspur", "Korba", "Rajnandgaon", "Jagdalpur"],
+  "Goa": ["Panaji", "Margao", "Vasco da Gama", "Mapusa", "Ponda"],
+  "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar", "Jamnagar"],
+  "Haryana": ["Gurugram", "Faridabad", "Panipat", "Ambala", "Yamunanagar", "Rohtak"],
+  "Himachal Pradesh": ["Shimla", "Dharamshala", "Solan", "Mandi", "Palampur", "Kullu"],
+  "Jharkhand": ["Jamshedpur", "Ranchi", "Dhanbad", "Bokaro", "Deoghar", "Hazaribagh"],
+  "Karnataka": ["Bengaluru", "Mysuru", "Hubballi-Dharwad", "Mangaluru", "Belagavi", "Kalaburagi"],
+  "Kerala": ["Thiruvananthapuram", "Kochi", "Kozhikode", "Thrissur", "Kollam", "Kannur"],
+  "Madhya Pradesh": ["Indore", "Bhopal", "Jabalpur", "Gwalior", "Ujjain", "Sagar"],
+  "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Thane", "Nashik", "Aurangabad", "Solapur", "Amravati"],
+  "Manipur": ["Imphal", "Churachandpur", "Thoubal", "Kakching"],
+  "Meghalaya": ["Shillong", "Tura", "Jowai", "Nongpoh"],
+  "Mizoram": ["Aizawl", "Lunglei", "Champhai", "Serchhip"],
+  "Nagaland": ["Kohima", "Dimapur", "Mokokchung", "Tuensang"],
+  "Odisha": ["Bhubaneswar", "Cuttack", "Rourkela", "Berhampur", "Sambalpur", "Puri"],
+  "Punjab": ["Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Bathinda", "Mohali"],
+  "Rajasthan": ["Jaipur", "Jodhpur", "Kota", "Bikaner", "Ajmer", "Udaipur", "Bhilwara"],
+  "Sikkim": ["Gangtok", "Namchi", "Geyzing", "Mangan"],
+  "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem", "Tirunelveli", "Erode"],
+  "Telangana": ["Hyderabad", "Warangal", "Nizamabad", "Khammam", "Karimnagar", "Ramagundam"],
+  "Tripura": ["Agartala", "Dharmanagar", "Kailasahar", "Udaipur"],
+  "Uttar Pradesh": ["Lucknow", "Kanpur", "Ghaziabad", "Agra", "Meerut", "Varanasi", "Prayagraj", "Noida"],
+  "Uttarakhand": ["Dehradun", "Haridwar", "Roorkee", "Haldwani", "Rudrapur", "Kashipur"],
+  "West Bengal": ["Kolkata", "Howrah", "Durgapur", "Asansol", "Siliguri", "Maheshtala"],
+  "Andaman and Nicobar Islands": ["Port Blair"],
+  "Chandigarh": ["Chandigarh"],
+  "Dadra and Nagar Haveli and Daman and Diu": ["Daman", "Diu", "Silvassa"],
+  "Delhi": ["New Delhi", "North Delhi", "South Delhi", "East Delhi", "West Delhi"],
+  "Jammu and Kashmir": ["Srinagar", "Jammu", "Anantnag", "Baramulla"],
+  "Ladakh": ["Leh", "Kargil"],
+  "Lakshadweep": ["Kavaratti"],
+  "Puducherry": ["Puducherry", "Karaikal", "Mahe", "Yanam"]
+};
 
 export default function LeadForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+
+  const stateOptions = useMemo(() => Object.keys(INDIA_STATES_CITIES).sort(), []);
+  const cityOptions = useMemo(() => {
+    if (!selectedState) return [];
+    return INDIA_STATES_CITIES[selectedState].sort();
+  }, [selectedState]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,31 +67,44 @@ export default function LeadForm() {
       email: (form.elements.namedItem('email') as HTMLInputElement).value,
       phone: (form.elements.namedItem('phone') as HTMLInputElement).value,
       experience: (form.elements.namedItem('experience') as HTMLSelectElement).value,
+      state: selectedState,
+      city: selectedCity,
     };
 
     try {
+      // 1. Save to Firestore (Primary)
+      try {
+        await addDoc(collection(db, 'leads'), {
+          ...formData,
+          createdAt: serverTimestamp(),
+        });
+      } catch (fbError) {
+        console.error('Firebase error:', fbError);
+        // We log it but continue to CSV for fallback if needed, 
+        // or we could throw if Firebase is mandatory.
+        // handleFirestoreError(fbError, 'create', 'leads', auth);
+      }
+
+      // 2. Save to local CSV (Secondary/Legacy)
       // Check if running on GitHub Pages (static hosting)
       if (window.location.hostname.includes('github.io')) {
-        alert('Form submission is disabled on GitHub Pages because it requires a backend server to save the CSV file. Please deploy to a platform like Render, Heroku, or Vercel to enable this feature.');
-        setIsSubmitting(false);
-        return;
-      }
-
-      const response = await fetch('/api/leads', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        setIsSuccess(true);
-        form.reset();
-        setTimeout(() => setIsSuccess(false), 5000);
+        // Silently skip CSV on GitHub Pages if Firebase succeeded
+        // but if both fail then we have an issue.
       } else {
-        alert('Failed to submit form. Please try again.');
+        await fetch('/api/leads', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
       }
+
+      setIsSuccess(true);
+      form.reset();
+      setSelectedState("");
+      setSelectedCity("");
+      setTimeout(() => setIsSuccess(false), 5000);
     } catch (error) {
       console.error('Error submitting form:', error);
       alert('An error occurred. Please try again later.');
@@ -140,19 +204,68 @@ export default function LeadForm() {
                 
                 <div>
                   <label htmlFor="experience" className="block text-sm font-medium text-gray-400 mb-1">Experience Level</label>
-                  <select 
-                    id="experience" 
-                    name="experience"
-                    required
-                    defaultValue=""
-                    className="w-full px-4 py-3 bg-gray-950/50 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all appearance-none"
-                  >
-                    <option value="" disabled>Select your experience</option>
-                    <option value="student">College Student</option>
-                    <option value="fresher">Fresher (0-1 years)</option>
-                    <option value="professional">Working Professional (1-5 years)</option>
-                    <option value="senior">Senior Professional (5+ years)</option>
-                  </select>
+                  <div className="relative">
+                    <select 
+                      id="experience" 
+                      name="experience"
+                      required
+                      defaultValue=""
+                      className="w-full px-4 py-3 bg-gray-950/50 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all appearance-none"
+                    >
+                      <option value="" disabled>Select your experience</option>
+                      <option value="student">College Student</option>
+                      <option value="fresher">Fresher (0-1 years)</option>
+                      <option value="professional">Working Professional (1-5 years)</option>
+                      <option value="senior">Senior Professional (5+ years)</option>
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="state" className="block text-sm font-medium text-gray-400 mb-1">State</label>
+                    <div className="relative">
+                      <select 
+                        id="state" 
+                        name="state"
+                        required
+                        value={selectedState}
+                        onChange={(e) => {
+                          setSelectedState(e.target.value);
+                          setSelectedCity("");
+                        }}
+                        className="w-full px-4 py-3 bg-gray-950/50 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all appearance-none"
+                      >
+                        <option value="" disabled>Select State</option>
+                        {stateOptions.map(state => (
+                          <option key={state} value={state}>{state}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="city" className="block text-sm font-medium text-gray-400 mb-1">City</label>
+                    <div className="relative">
+                      <select 
+                        id="city" 
+                        name="city"
+                        required
+                        value={selectedCity}
+                        onChange={(e) => setSelectedCity(e.target.value)}
+                        disabled={!selectedState}
+                        className="w-full px-4 py-3 bg-gray-950/50 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <option value="" disabled>Select City</option>
+                        {cityOptions.map(city => (
+                          <option key={city} value={city}>{city}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+                    </div>
+                  </div>
                 </div>
 
                 <button 

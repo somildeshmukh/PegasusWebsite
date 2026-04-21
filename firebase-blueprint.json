@@ -1,0 +1,25 @@
+{
+  "entities": {
+    "Lead": {
+      "title": "Lead",
+      "description": "User lead information for demo class registration.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Full name of the lead" },
+        "email": { "type": "string", "format": "email", "description": "Email address" },
+        "phone": { "type": "string", "description": "Phone number" },
+        "experience": { "type": "string", "description": "Professional experience level" },
+        "state": { "type": "string", "description": "Indian state of residence" },
+        "city": { "type": "string", "description": "City of residence" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of submission" }
+      },
+      "required": ["name", "email", "phone", "experience", "state", "city", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/leads/{leadId}": {
+      "schema": "Lead",
+      "description": "Collection of registration leads."
+    }
+  }
+}

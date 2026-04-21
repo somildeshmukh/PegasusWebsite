@@ -12,7 +12,7 @@ async function startServer() {
 
   // API route to handle lead submission
   app.post("/api/leads", (req, res) => {
-    const { name, email, phone, experience } = req.body;
+    const { name, email, phone, experience, state, city } = req.body;
     
     // Ensure the public directory exists
     const publicDir = path.join(process.cwd(), "public");
@@ -26,13 +26,13 @@ async function startServer() {
     // Create CSV row
     const date = new Date().toISOString();
     // Escape fields to handle commas in data
-    const escapeCSV = (str: string) => `"${String(str).replace(/"/g, '""')}"`;
-    const row = `${escapeCSV(date)},${escapeCSV(name)},${escapeCSV(email)},${escapeCSV(phone)},${escapeCSV(experience)}\n`;
+    const escapeCSV = (str: string) => `"${String(str || '').replace(/"/g, '""')}"`;
+    const row = `${escapeCSV(date)},${escapeCSV(name)},${escapeCSV(email)},${escapeCSV(phone)},${escapeCSV(experience)},${escapeCSV(state)},${escapeCSV(city)}\n`;
 
     try {
       if (isNewFile) {
         // Write header if file doesn't exist
-        const header = "Date,Name,Email,Phone,Experience\n";
+        const header = "Date,Name,Email,Phone,Experience,State,City\n";
         fs.writeFileSync(csvFilePath, header + row);
       } else {
         // Append to existing file

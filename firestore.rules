@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Reuseable helpers
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+    
+    function incoming() {
+      return request.resource.data;
+    }
+    
+    function isValidLead(data) {
+      return data.keys().hasAll(['name', 'email', 'phone', 'experience', 'state', 'city', 'createdAt'])
+        && data.keys().size() == 7
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.email is string && data.email.size() > 5 && data.email.size() <= 100
+        && data.phone is string && data.phone.size() >= 10 && data.phone.size() <= 20
+        && data.experience is string && data.experience.size() <= 50
+        && data.state is string && data.state.size() > 0 && data.state.size() <= 100
+        && data.city is string && data.city.size() > 0 && data.city.size() <= 100
+        && data.createdAt == request.time;
+    }
+
+    match /leads/{leadId} {
+      allow create: if isValidId(leadId) && isValidLead(incoming());
+      // Leads are usually private to admins only
+      allow get, list, update, delete: if false; 
+    }
+  }
+}
